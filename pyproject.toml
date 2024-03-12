@@ -1,0 +1,15 @@
+[tool.poetry]
+name = "mulmod"
+version = "0.1.0"
+description = "Multi modal search on documents"
+authors = ["Adam Osusky"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+langchain = "^0.1.11"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
