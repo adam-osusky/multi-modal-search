@@ -6,8 +6,11 @@ authors = ["Adam Osusky"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.11"
+python = ">=3.11,<3.12"
 langchain = "^0.1.11"
+unstructured = {extras = ["all-docs"], version = "^0.12.6"}
+pydantic = "^2.6.4"
+lxml = "^5.1.0"
 
 
 [build-system]
