@@ -2,7 +2,6 @@ import os
 from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
-from typing import List
 
 from pydantic import BaseModel
 from unstructured.documents.elements import CompositeElement, Element, Table
@@ -37,9 +36,9 @@ class Extraction(BaseModel):
 
 @dataclass
 class Extractions:
-    texts: List[Extraction]
-    tables: List[Extraction]
-    images: List[Extraction]
+    texts: list[Extraction]
+    tables: list[Extraction]
+    images: list[Extraction]
 
 
 @dataclass
@@ -80,7 +79,7 @@ class PdfExtractor:
 
         self.img_dir = os.path.join(self.img_dir, Path(filepath).stem)
 
-        pdf_elements: List[Element] = partition_pdf(
+        pdf_elements: list[Element] = partition_pdf(
             filename=filepath,
             strategy="hi_res",
             extract_images_in_pdf=True,
@@ -105,7 +104,7 @@ class PdfExtractor:
 
     @staticmethod
     def categorize(
-        elements: List[Element],
+        elements: list[Element],
     ) -> tuple[list[Extraction], list[Extraction]]:
         """
         Categorizes elements into texts and tables.
