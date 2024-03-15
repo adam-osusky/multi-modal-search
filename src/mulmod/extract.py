@@ -132,7 +132,7 @@ class PdfExtractor:
         return texts, tables
 
     @staticmethod
-    def get_imgs(img_dir: str):
+    def get_imgs(img_dir: str) -> list[Extraction]:
         images = []
 
         for filename in os.listdir(img_dir):
