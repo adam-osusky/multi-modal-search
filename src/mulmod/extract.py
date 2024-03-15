@@ -20,6 +20,17 @@ class ExtractionType(Enum):
 
 
 class Extraction(BaseModel):
+    """
+    Representation of an extraction.
+
+    Attributes:
+        type (ExtractionType):
+            Type of the extraction.
+        content (str):
+            Content of the extraction. If the type is IMAGE then the content is path
+            to that image.
+    """
+
     type: ExtractionType
     content: str
 
@@ -37,10 +48,14 @@ class PdfExtractor:
     Extractor for PDF documents that partitions and extracts elements from the PDF.
 
     Attributes:
-    - max_characters: Maximum number of characters to extract per chunk.
-    - new_after_n_chars: Threshold for starting a new chunk during extraction.
-    - combine_text_under_n_chars: Threshold for combining text chunks.
-    - img_dir: Directory to store extracted images.
+    max_characters:
+        Maximum number of characters to extract per chunk.
+    new_after_n_chars:
+        Threshold for starting a new chunk during extraction.
+    combine_text_under_n_chars:
+        Threshold for combining text chunks.
+    img_dir:
+        Directory to store extracted images.
     """
 
     max_characters: int = 4000
@@ -49,9 +64,17 @@ class PdfExtractor:
 
     img_dir: str = "./resources/figs"
 
-    def extract(self, filepath: str) -> None:
+    def extract(self, filepath: str) -> Extractions:
         """
-        TODO WIP
+        Extracts texts, tables, images from the PDF document.
+
+        Parameters:
+            filepath (str):
+                Path to the PDF file.
+
+        Returns:
+            Extractions:
+                Collection of extracted elements.
         """
         logger.info(f"Started extraction on {filepath}.")
 
@@ -69,24 +92,27 @@ class PdfExtractor:
             extract_image_block_output_dir=self.img_dir,
         )
 
-        texts, tables = self.categorize(pdf_elements)
+        texts, tables = PdfExtractor.categorize(pdf_elements)
 
         logger.info(
             f"Extracted {len(texts)} texts, {len(tables)} tables and {len(os.listdir(self.img_dir))} images."
         )
         logger.info(f"The extracted images are in {self.img_dir}")
 
-        for t in texts:
-            print(len(t.content))
+        images = PdfExtractor.get_imgs(self.img_dir)
 
+        return Extractions(texts=texts, tables=tables, images=images)
+
+    @staticmethod
     def categorize(
-        self, elements: List[Element]
+        elements: List[Element],
     ) -> tuple[list[Extraction], list[Extraction]]:
         """
         Categorizes elements into texts and tables.
 
         Parameters:
-        - elements: List of elements extracted from the PDF.
+        elements:
+            List of elements extracted from the PDF.
 
         Returns:
         A tuple containing lists of text and table extractions.
@@ -104,3 +130,14 @@ class PdfExtractor:
                 )
 
         return texts, tables
+
+    @staticmethod
+    def get_imgs(img_dir: str):
+        images = []
+
+        for filename in os.listdir(img_dir):
+            filepath = os.path.join(img_dir, filename)
+            if filename.endswith(".jpg") or filename.endswith(".png"):
+                images.append(Extraction(type=ExtractionType.IMAGE, content=filepath))
+
+        return images
