@@ -57,11 +57,11 @@ class PdfExtractor:
         Directory to store extracted images.
     """
 
-    max_characters: int = 4000
-    new_after_n_chars: int = 3800
-    combine_text_under_n_chars: int = 3000
+    max_characters: int = 1000
+    new_after_n_chars: int = 800
+    combine_text_under_n_chars: int = 500
 
-    img_dir: str = "./resources/figs"
+    base_img_dir: str = "./resources/figs"
 
     def extract(self, filepath: str) -> Extractions:
         """
@@ -77,7 +77,7 @@ class PdfExtractor:
         """
         logger.info(f"Started extraction on {filepath}.")
 
-        self.img_dir = os.path.join(self.img_dir, Path(filepath).stem)
+        self.img_dir = os.path.join(self.base_img_dir, Path(filepath).stem)
 
         pdf_elements: list[Element] = partition_pdf(
             filename=filepath,
@@ -136,7 +136,7 @@ class PdfExtractor:
 
         for filename in os.listdir(img_dir):
             filepath = os.path.join(img_dir, filename)
-            if filename.endswith(".jpg") or filename.endswith(".png"):
+            if filename.endswith(".jpg"):
                 images.append(Extraction(type=ExtractionType.IMAGE, content=filepath))
 
         return images
