@@ -2,6 +2,7 @@ import sys
 
 from mulmod.extract import Extractions, PdfExtractor
 from mulmod.logger import get_logger
+from mulmod.retrieve.rag import Rag
 from mulmod.retrieve.retriever import RetrievalResult, Retriever
 from mulmod.summary import Summarizer
 
@@ -17,6 +18,10 @@ Arguments:
 STOP_TOKEN = "<stop>"
 INTRO_RET_MSG = f"""\
 Ask a query about the input PDF to print relevant texts and images for it.
+To stop simply type {STOP_TOKEN}.
+"""
+INTRO_CHAT_MSG = f"""\
+Ask a query about the input PDF to get answer from the chatbot.
 To stop simply type {STOP_TOKEN}.
 """
 
@@ -46,6 +51,7 @@ def remove_empty(extracts: Extractions) -> Extractions:
 
 
 def get_retriever(
+    filepath: str,
     max_characters: int,
     new_after_n_chars: int,
     combine_text_under_n_chars: int,
@@ -92,6 +98,7 @@ def get_retriever(
 
 def retrieval_only(pdf_path: str) -> None:
     retriever = get_retriever(
+        filepath=pdf_path,
         max_characters=600,
         new_after_n_chars=550,
         combine_text_under_n_chars=500,
@@ -109,7 +116,24 @@ def retrieval_only(pdf_path: str) -> None:
 
 
 def rag(pdf_path: str) -> None:
-    raise NotImplementedError()
+    retriever = get_retriever(
+        filepath=pdf_path,
+        max_characters=4000,
+        new_after_n_chars=3800,
+        combine_text_under_n_chars=2000,
+        img_summary_num_words=50,
+        summarize_texts=True,
+        txt_summary_num_words=50,
+    )
+    ai = Rag()
+
+    print(INTRO_CHAT_MSG)
+    while True:
+        query = input("Query: ")
+        if STOP_TOKEN in query:
+            break
+        answer = ai.answer(query, retriever)
+        print(answer)
 
 
 if __name__ == "__main__":
