@@ -1,5 +1,11 @@
-# Use a Python base image
-FROM python:3.11-slim
+# Use nvidia container for gpu support
+FROM nvidia/cuda:12.3.2-cudnn9-runtime-ubuntu22.04
+
+# Install Python 3 and pip
+RUN apt-get update \
+    && apt-get install -y \
+        python3 \
+        python3-pip
 
 # Set environment variables
 ENV PYTHONDONTWRITEBYTECODE 1
@@ -8,7 +14,8 @@ ENV PYTHONUNBUFFERED 1
 # Set the working directory in the container
 WORKDIR /app
 
-# Install Tesseract OCR, opencv depends, poppler, and set TESSDATA_PREFIX environment variable
+# Install sys dependencies. Tesseract OCR, opencv depends, poppler for unstructured,
+# set TESSDATA_PREFIX environment variable, pciutils and lshw for ollama gpu
 RUN apt-get update \
     && apt-get install -y \
         tesseract-ocr \
@@ -16,21 +23,18 @@ RUN apt-get update \
         libsm6 \
         libxext6 \
         poppler-utils \
+        curl \
+        pciutils \
+        lshw \
     && export TESSDATA_PREFIX=/usr/share/tessdata
 
-# Copy the Poetry files to the container
-COPY pyproject.toml poetry.lock README.md /app/
-
-# Copy folder with resources
-COPY resources/ /app/resources/
-
-# Copy the rest of the application code to the container
-COPY src/ /app/src
+# Copy the mulmod project
+COPY . /app/
 
 # Install Poetry and dependencies
 RUN pip install poetry \
     && poetry config virtualenvs.create false \
     && poetry install --only main
 
-# Command to run the application
-CMD ["python", "src/mulmod/main.py"]
+# Install ollama and pull models
+RUN curl -fsSL https://ollama.com/install.sh | sh
