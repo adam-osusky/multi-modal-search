@@ -59,6 +59,7 @@ class Summarizer:
     system_prompt: str = SYSTEM_PROMPT
     model: str = "llava"
     num_words: int = 100
+    num_predict: int = 4000
 
     def __post_init__(self) -> None:
         self.prompts: dict[ExtractionType, str] = {
@@ -73,7 +74,7 @@ class Summarizer:
         if len(extractions) == 0:
             return []
 
-        llm = ChatOllama(model=self.model)
+        llm = ChatOllama(model=self.model, num_predict=self.num_predict)
 
         chain = self.get_prompt | llm | StrOutputParser()
 
