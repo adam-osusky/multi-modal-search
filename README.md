@@ -46,3 +46,10 @@ python3 src/mulmod/main.py llm.pdf 1
 
 
 ## Usage
+To run the application:
+```
+python src/mulmod/main.py <filepath> <mode>
+```
+where `<filepath>` is path to the pdf file that you want to use and `<mode>` is for setting wheter you want to only retrieve relevant parts of the document or also to chat. Where:
+- `<mode> = 0` retrieval only
+- `<mode> != 0` rag - also answer from LLM
