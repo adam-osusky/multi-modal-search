@@ -58,6 +58,7 @@ def get_retriever(
     img_summary_num_words: int,
     summarize_texts=False,
     txt_summary_num_words: int = 50,
+    num_predict_summaries: int = 1000,
 ) -> Retriever:
     extractor = PdfExtractor(
         max_characters=max_characters,
@@ -71,14 +72,14 @@ def get_retriever(
     tables = [e.content for e in extractions.tables]
 
     logger.info("Started generating summaries for images.")
-    image_summarizer = Summarizer(num_words=img_summary_num_words)
+    image_summarizer = Summarizer(num_words=img_summary_num_words, num_predict=num_predict_summaries)
     image_summaries = image_summarizer.get_summary(extractions.images)
     logger.info("Finished generating summaries for images.")
 
     retriever = Retriever()
 
     if summarize_texts:
-        text_summarizer = Summarizer(num_words=txt_summary_num_words)
+        text_summarizer = Summarizer(num_words=txt_summary_num_words, num_predict=num_predict_summaries)
         logger.info("Started generating summaries for texts and tables.")
         text_summaries = text_summarizer.get_summary(extractions.texts)
         table_summaries = text_summarizer.get_summary(extractions.tables)
